@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Log level constants for filtering
 const (
 	DEBUG = iota
 	INFO
@@ -13,22 +14,25 @@ const (
 	ERROR
 )
 
+// Default log level names (used if not overridden)
 var defaultLevelNames = []string{"DEBUG", "INFO", "WARN", "ERROR"}
 
+// ColorConfig represents ANSI color codes to wrap around log parts.
 type ColorConfig struct {
-	Prefix string // Start of color
-	Suffix string // End of color
+	Prefix string // Start of color (e.g., \033[36m)
+	Suffix string // Reset color (e.g., \033[0m)
 }
 
+// Logger provides configurable logging with levels and optional color.
 type Logger struct {
-	MinLevel    int
-	UseColor    bool
-	LevelNames  []string
-	LevelColors []ColorConfig // One per level
-	ColorTarget string        // "level", "message", "full"
+	MinLevel    int           // Minimum level to log (e.g., INFO and above)
+	UseColor    bool          // Whether to use color output
+	LevelNames  []string      // Names for each log level
+	LevelColors []ColorConfig // ANSI color configs per level
+	ColorTarget string        // Which part to color: "level", "message", or "full"
 }
 
-// New creates a new logger with optional color and default color config.
+// New creates and returns a new Logger instance with default colors.
 func New(minLevel int, useColor bool) *Logger {
 	return &Logger{
 		MinLevel:   minLevel,
@@ -40,10 +44,11 @@ func New(minLevel int, useColor bool) *Logger {
 			{Prefix: "\033[33m", Suffix: "\033[0m"}, // WARN - Yellow
 			{Prefix: "\033[31m", Suffix: "\033[0m"}, // ERROR - Red
 		},
-		ColorTarget: "level", // or "message" or "full"
+		ColorTarget: "level", // Options: "level", "message", or "full"
 	}
 }
 
+// log prints a formatted log message based on level, color, and configuration.
 func (l *Logger) log(level int, format string, args ...interface{}) {
 	if level < l.MinLevel {
 		return
@@ -70,12 +75,26 @@ func (l *Logger) log(level int, format string, args ...interface{}) {
 		}
 	}
 
-	// No full-line color or color disabled
+	// Default output (no full-line color or color disabled)
 	fmt.Fprintf(os.Stdout, "[%s] [%s] %s\n", timestamp, levelName, msg)
 }
 
-// Shortcut methods
-func (l *Logger) Debug(format string, args ...interface{}) { l.log(DEBUG, format, args...) }
-func (l *Logger) Info(format string, args ...interface{})  { l.log(INFO, format, args...) }
-func (l *Logger) Warn(format string, args ...interface{})  { l.log(WARN, format, args...) }
-func (l *Logger) Error(format string, args ...interface{}) { l.log(ERROR, format, args...) }
+// Debug logs a message at DEBUG level.
+func (l *Logger) Debug(format string, args ...interface{}) {
+	l.log(DEBUG, format, args...)
+}
+
+// Info logs a message at INFO level.
+func (l *Logger) Info(format string, args ...interface{}) {
+	l.log(INFO, format, args...)
+}
+
+// Warn logs a message at WARN level.
+func (l *Logger) Warn(format string, args ...interface{}) {
+	l.log(WARN, format, args...)
+}
+
+// Error logs a message at ERROR level.
+func (l *Logger) Error(format string, args ...interface{}) {
+	l.log(ERROR, format, args...)
+}
