@@ -10,12 +10,13 @@ import (
 const (
 	DEBUG = iota
 	INFO
+	SUCCESS
 	WARN
 	ERROR
 )
 
 // Default log level names (used if not overridden)
-var defaultLevelNames = []string{"DEBUG", "INFO", "WARN", "ERROR"}
+var defaultLevelNames = []string{"DEBUG", "INFO", "SUCCESS", "WARN", "ERROR"}
 
 // ColorConfig represents ANSI color codes to wrap around log parts.
 type ColorConfig struct {
@@ -45,6 +46,7 @@ func New(minLevel int, useColor bool) *Logger {
 		LevelColors: []ColorConfig{
 			{Prefix: "\033[36m", Suffix: "\033[0m"}, // DEBUG - Cyan
 			{Prefix: "\033[32m", Suffix: "\033[0m"}, // INFO - Green
+			{Prefix: "\033[92m", Suffix: "\033[0m"}, // SUCCESS - Bright Green
 			{Prefix: "\033[33m", Suffix: "\033[0m"}, // WARN - Yellow
 			{Prefix: "\033[31m", Suffix: "\033[0m"}, // ERROR - Red
 		},
@@ -117,6 +119,11 @@ func (l *Logger) Warn(format string, args ...interface{}) {
 // Error logs a message at ERROR level.
 func (l *Logger) Error(format string, args ...interface{}) {
 	l.log(ERROR, format, args...)
+}
+
+// Success logs a message at SUCCESS level.
+func (l *Logger) Success(format string, args ...interface{}) {
+	l.log(SUCCESS, format, args...)
 }
 
 // Raw prints a message directly without timestamp or level
